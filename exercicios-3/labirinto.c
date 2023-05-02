@@ -54,36 +54,38 @@ int backtrack(int i, int j, int N, int M, char **A, char *answer, int *aux) {
         return 1;
     }
 
-    if (A[i][j] == '.') {
-        if (j < M-1) {
-            if(backtrack(i, j+1, N, M, A, answer, aux)){
-                A[i][j] = '>';
-                answer[(*aux)++] = 'R';
-                return 1;
-            }
-        }
-        if (i < N-1) {
-            if(backtrack(i+1, j, N, M, A, answer, aux)){
-                A[i][j] = 'v';
-                answer[(*aux)++] = 'D';
-                return 1;
-            }
-        }
-        if (i > 0) {
-            if(backtrack(i-1, j, N, M, A, answer, aux)){
-                A[i][j] = '^';
-                answer[(*aux)++] = 'U';
-                return 1;
-            }
-        }
-        if (j > 0) {
-            if(backtrack(i, j-1, N, M, A, answer, aux)){
-                A[i][j] = '<';
-                answer[(*aux)++] = 'L';
-                return 1;
-            }
+    A[i][j] = 'X';
+
+    if (j < M-1 && A[i][j+1] == '.') {
+        if(backtrack(i, j+1, N, M, A, answer, aux)){
+            A[i][j] = '>'; // marca caminho com >
+            answer[(*aux)++] = 'R';
+            return 1;
         }
     }
+    if (i < N-1 && A[i+1][j] == '.') {
+        if(backtrack(i+1, j, N, M, A, answer, aux)){
+            A[i][j] = 'v'; // marca caminho com v
+            answer[(*aux)++] = 'D';
+            return 1;
+        }
+    }
+    if (i > 0 && A[i-1][j] == '.') {
+        if(backtrack(i-1, j, N, M, A, answer, aux)){
+            A[i][j] = '^'; // marca caminho com ^
+            answer[(*aux)++] = 'U';
+            return 1;
+        }
+    }
+    if (j > 0 && A[i][j-1] == '.') {
+        if(backtrack(i, j-1, N, M, A, answer, aux)){
+            A[i][j] = '<'; // marca caminho com <
+            answer[(*aux)++] = 'L';
+            return 1;
+        }
+    }
+
+    A[i][j] = '.';
 
     return 0;
 }
