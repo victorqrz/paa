@@ -1,54 +1,74 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include <stdbool.h>
+#include <limits.h>
+#include <float.h>
+#include <string.h>
 
-#define MAX_MUSICAS 20
+void imprimirMaiorDuracao(int** tabela, int* duracoes, int numMusicas, int capacidade) {
+    int i = numMusicas;
+    int j = capacidade;
+    int selecionadas[numMusicas];
+    int numSelecionadas = 0;
 
-int max_duracao, num_musicas;
-int duracoes[MAX_MUSICAS];
-int musica_escolhida[MAX_MUSICAS];
+    while (i > 0 && j > 0) {
+        if (tabela[i][j] != tabela[i-1][j]) {
+            selecionadas[numSelecionadas] = duracoes[i-1];
+            numSelecionadas++;
+            j -= duracoes[i-1];
+        }
+        i--;
+    }
 
-int max(int a, int b) {
-  return a > b ? a : b;
+    for (int k = numSelecionadas - 1; k >= 0; k--) {
+        printf("%d ", selecionadas[k]);
+    }
+    printf("sum:%d\n", capacidade - j);
 }
 
-int escolhe_musicas(int duracao_atual, int indice_atual) {
-  if (indice_atual == num_musicas) {
-    return 0;
-  }
+void encontrarMaiorDuracao(int* duracoes, int numMusicas, int capacidade) {
+    int** tabela = (int**)malloc((numMusicas+1) * sizeof(int*));
+    for (int i = 0; i <= numMusicas; i++) {
+        tabela[i] = (int*)malloc((capacidade+1) * sizeof(int));
+    }
 
-  if (duracao_atual + duracoes[indice_atual] > max_duracao) {
-    return escolhe_musicas(duracao_atual, indice_atual + 1);
-  }
+    for (int i = 0; i <= numMusicas; i++) {
+        for (int j = 0; j <= capacidade; j++) {
+            if (i == 0 || j == 0) {
+                tabela[i][j] = 0;
+            }
+            else if (duracoes[i-1] <= j) {
+                tabela[i][j] = fmax(duracoes[i-1] + tabela[i-1][j-duracoes[i-1]], tabela[i-1][j]);
+            }
+            else {
+                tabela[i][j] = tabela[i-1][j];
+            }
+        }
+    }
 
-  int escolhe = escolhe_musicas(duracao_atual + duracoes[indice_atual], indice_atual + 1) + duracoes[indice_atual];
-  int nao_escolhe = escolhe_musicas(duracao_atual, indice_atual + 1);
+    imprimirMaiorDuracao(tabela, duracoes, numMusicas, capacidade);
 
-  if (escolhe > nao_escolhe) {
-    musica_escolhida[indice_atual] = 1;
-    return escolhe;
-  } else {
-    musica_escolhida[indice_atual] = 0;
-    return nao_escolhe;
-  }
+    for (int i = 0; i <= numMusicas; i++) {
+        free(tabela[i]);
+    }
+    free(tabela);
 }
 
 int main() {
-  while (scanf("%d %d", &max_duracao, &num_musicas) == 2) {
-    for (int i = 0; i < num_musicas; i++) {
-      scanf("%d", &duracoes[i]);
-      musica_escolhida[i] = 0;
+  while(1){
+    int capacidade, numMusicas;
+    scanf("%d %d", &capacidade, &numMusicas);
+
+    int* duracoes = (int*)malloc(numMusicas * sizeof(int));
+    for (int i = 0; i < numMusicas; i++) {
+        scanf("%d", &duracoes[i]);
     }
 
-    int duracao_total = escolhe_musicas(0, 0);
+    encontrarMaiorDuracao(duracoes, numMusicas, capacidade);
 
-    for (int i = 0; i < num_musicas; i++) {
-      if (musica_escolhida[i]) {
-        printf("%d ", duracoes[i]);
-      }
-    }
-
-    printf("sum:%d\n", duracao_total);
+    free(duracoes);
   }
 
-  return 0;
+    return 0;
 }
