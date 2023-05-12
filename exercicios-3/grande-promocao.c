@@ -1,73 +1,71 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-#include <stdbool.h>
-#include <limits.h>
-#include <float.h>
-#include <string.h>
 
-typedef struct item{
-	int p;
-	int w;
-} item;
-
-int max(int a, int b) {
-    return a > b ? a : b;
-}
-
-int T, n, p[1010], w[1010], g, i, j, m[110];
-
-int memo[1010][110];
-
-int dp() {
-    for (int rc=0; rc <= g; ++rc)
+// Lucro maximo
+int calculateMaximumProfit(int N, int P[], int W[], int MW, int *DP)
+{
+    int i, j;
+    for (i = 0; i <= MW; i++)
     {
-        for (int i = n; i >= 0; --i)
+        DP[i] = 0;
+    }
+
+    // Itens e pesos
+    for (i = 0; i < N; i++)
+    {
+        for (j = MW; j >= W[i]; j--)
         {
-            if(m[rc] == 0 || i == n){
-                memo[i][rc] = 0;
-            } else if (w[rc] > m[rc]) {
-                memo[i][rc] = memo[i+1][rc];
-            } else {
-                memo[i][rc] = max(p[i] + memo[i+1][rc-w[i]], memo[i+1][rc]);
+            // Atualizando o valor maximo de lucro possivel para o peso
+            if (DP[j - W[i]] + P[i] > DP[j])
+            {
+                DP[j] = DP[j - W[i]] + P[i];
             }
         }
     }
-    return memo[0][g];
+    // Valor maximo de lucro para MW da mochila
+    return DP[MW];
 }
 
-int main(int argc, char const *argv[])
+int main()
 {
+    int T, i, j;
 
     scanf("%d", &T);
 
-    for (i = 0; i < T; i++)
+    // Processando cada caso de teste
+    while (T--)
     {
-        scanf("%d", &n);
-        for (j = 1; j <= n; j++)
+        int N, MW, G, maxProfit, totalProfit = 0;
+        int *prices, *weights, *DP;
+
+        scanf("%d", &N);
+
+        // tentando dinamico
+        prices = (int *)malloc(N * sizeof(int));
+        weights = (int *)malloc(N * sizeof(int));
+        DP = (int *)malloc(10001 * sizeof(int));
+
+        // Precos e Pesos dos itens
+        for (i = 0; i < N; i++)
         {
-            scanf("%d %d", &p[j], &w[j]);
+            scanf("%d %d", &prices[i], &weights[i]);
         }
 
-        scanf("%d", &g);
+        scanf("%d", &G);
 
-
-        for (int k = 0; k < g; k++)
+        for (i = 0; i < G; i++)
         {
-            scanf("%d", &m[k]);
+            scanf("%d", &MW);
+            maxProfit = calculateMaximumProfit(N, prices, weights, MW, DP);
+            totalProfit += maxProfit;
         }
 
-        for(i = 0; i<g; i++){
-            memo[n-1][i] = 0;
-        }
-        
-        for(i = 0; i<n; i++){
-            memo[i][0] = 0;
-        }
+        printf("%d\n", totalProfit);
 
-        printf("res 1: %d\n", dp());
-        
+        free(prices);
+        free(weights);
+        free(DP);
     }
-    
+
     return 0;
 }
